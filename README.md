@@ -14,6 +14,7 @@ No API keys. No cloud. Runs locally, stores everything in SQLite.
 
 | Tool | Description |
 |---|---|
+| `search_web` | Search the web via DuckDuckGo — find URLs when you don't have one yet |
 | `add_docs_url` | Crawl and index a URL (async, call immediately then search) |
 | `search_docs` | Full-text search across all indexed docs |
 | `get_page` | Get a specific page, chunked. Jump to a section by name. |
@@ -155,6 +156,36 @@ Add to `~/.continue/config.json` under `mcpServers`:
       "args": ["/path/to/rock-mcp/dist/server.js"]
     }
   ]
+}
+```
+
+---
+
+### Antigravity (Firebase Studio / Project IDX)
+
+Add to `.idx/mcp.json` in your workspace root (create it if it doesn't exist):
+
+```json
+{
+  "mcpServers": {
+    "rock-mcp": {
+      "command": "node",
+      "args": ["/path/to/rock-mcp/dist/server.js"]
+    }
+  }
+}
+```
+
+For Gemini CLI within Firebase Studio, add to `.gemini/settings.json` instead:
+
+```json
+{
+  "mcpServers": {
+    "rock-mcp": {
+      "command": "node",
+      "args": ["/path/to/rock-mcp/dist/server.js"]
+    }
+  }
 }
 ```
 

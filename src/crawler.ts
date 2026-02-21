@@ -16,6 +16,47 @@ const CRAWL_CONCURRENCY = 5;
 const CRAWL_DELAY_MS = 200;
 const MAX_CONTENT_LENGTH = 50_000;
 
+// --- Web search via DuckDuckGo HTML ---
+export type WebSearchResult = {
+  title: string;
+  url: string;
+  snippet: string;
+};
+
+export async function searchWeb(query: string, limit = 10): Promise<WebSearchResult[]> {
+  const encoded = encodeURIComponent(query);
+  const res = await fetch(`https://html.duckduckgo.com/html/?q=${encoded}&kl=en-us`, {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (compatible; rock-mcp/0.5 documentation indexer)",
+      "Accept-Language": "en-US,en;q=0.9",
+    },
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (!res.ok) throw new Error(`DuckDuckGo search failed: ${res.status}`);
+  const html = await res.text();
+  const $ = cheerio.load(html);
+  const results: WebSearchResult[] = [];
+  $(".result__body").each((_, el) => {
+    if (results.length >= limit) return false;
+    const titleEl = $(el).find(".result__title a");
+    const snippetEl = $(el).find(".result__snippet");
+    const rawHref = titleEl.attr("href") ?? "";
+    // DDG wraps links — extract uddg= param if present
+    let url = rawHref;
+    try {
+      const u = new URL(rawHref.startsWith("http") ? rawHref : `https://duckduckgo.com${rawHref}`);
+      url = u.searchParams.get("uddg") ?? u.searchParams.get("url") ?? rawHref;
+      url = decodeURIComponent(url);
+    } catch { /* keep rawHref */ }
+    const title = titleEl.text().trim();
+    const snippet = snippetEl.text().trim();
+    if (title && url && url.startsWith("http")) {
+      results.push({ title, url, snippet });
+    }
+  });
+  return results;
+}
+
 export type CrawlOptions = {
   maxDepth?: number;
   maxPages?: number;
@@ -27,8 +68,9 @@ async function fetchPage(url: string): Promise<{ html: string; finalUrl: string 
   try {
     const res = await fetch(url, {
       headers: {
-        "User-Agent": "rock-mcp/0.1 (documentation indexer)",
+        "User-Agent": "rock-mcp/0.5 (documentation indexer)",
         Accept: "text/html,application/xhtml+xml",
+        "Accept-Language": "en-US,en;q=0.9",
       },
       signal: AbortSignal.timeout(15_000),
       redirect: "follow",

@@ -10,7 +10,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { db, STALE_THRESHOLD_MS, type Page, type Source } from "./db.js";
-import { crawlSource, searchDocs, normalizeUrl } from "./crawler.js";
+import { crawlSource, searchDocs, normalizeUrl, searchWeb } from "./crawler.js";
 
 // --- In-memory crawl job tracker ---
 type CrawlJob = {
@@ -196,6 +196,27 @@ const tools: Tool[] = [
         url: { type: "string", description: "Source URL to delete" },
       },
       required: ["url"],
+    },
+  },
+  {
+    name: "search_web",
+    description: [
+      "Search the web via DuckDuckGo and return titles, URLs, and snippets.",
+      "WHEN TO CALL: Use this when you need to find a documentation URL you don't already know, or when the user asks about a library/tool that isn't indexed yet.",
+      "After getting results, use add_docs_url on the most relevant URL to index it, then search_docs to query it.",
+      "Returns results with titles, URLs, and snippets. No API key required.",
+    ].join(" "),
+    inputSchema: {
+      type: "object",
+      properties: {
+        query: { type: "string", description: "Search query" },
+        limit: {
+          type: "number",
+          description: "Max results to return (default: 10, max: 20)",
+          default: 10,
+        },
+      },
+      required: ["query"],
     },
   },
 ];
@@ -543,6 +564,23 @@ function handleDeleteSource(args: unknown) {
   return { message: `Deleted ${url} and ${pages} indexed pages.` };
 }
 
+async function handleSearchWeb(args: unknown) {
+  const { query, limit } = z.object({
+    query: z.string(),
+    limit: z.number().int().min(1).max(20).default(10),
+  }).parse(args);
+
+  const results = await searchWeb(query, limit);
+  if (results.length === 0) {
+    return { query, results: [], tip: "No results found. Try different search terms." };
+  }
+  return {
+    query,
+    results,
+    tip: "Use add_docs_url on the most relevant URL to index it, then search_docs to query it.",
+  };
+}
+
 // --- MCP Server ---
 const server = new Server(
   { name: "rock-mcp", version: "0.5.0" },
@@ -564,6 +602,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case "recrawl_source":   result = handleRecrawlSource(args); break;
       case "get_crawl_status": result = handleGetCrawlStatus(args); break;
       case "delete_source":    result = handleDeleteSource(args); break;
+      case "search_web":       result = await handleSearchWeb(args); break;
       default:
         return { content: [{ type: "text", text: `Unknown tool: ${name}` }], isError: true };
     }
