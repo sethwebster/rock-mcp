@@ -1,0 +1,12 @@
+{
+  "name": "rock-mcp",
+  "description": "Documentation crawler — crawl any docs URL and search it instantly",
+  "version": "0.5.0",
+  "author": {
+    "name": "Seth Webster"
+  },
+  "homepage": "https://github.com/sethwebster/rock-mcp",
+  "repository": "https://github.com/sethwebster/rock-mcp",
+  "license": "MIT",
+  "keywords": ["docs", "crawler", "search", "mcp"]
+}
