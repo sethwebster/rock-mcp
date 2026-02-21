@@ -161,7 +161,26 @@ Add to `~/.continue/config.json` under `mcpServers`:
 
 ---
 
-### Antigravity (Firebase Studio / Project IDX)
+### Antigravity
+
+In the agent panel, click `...` → **Manage MCP Servers** → **View raw config** to open `mcp_config.json`. Add your server:
+
+```json
+{
+  "mcpServers": {
+    "rock-mcp": {
+      "command": "node",
+      "args": ["/path/to/rock-mcp/dist/server.js"]
+    }
+  }
+}
+```
+
+Save the file and restart Antigravity (or reload the window).
+
+---
+
+### Firebase Studio (Project IDX)
 
 Add to `.idx/mcp.json` in your workspace root (create it if it doesn't exist):
 
@@ -176,18 +195,7 @@ Add to `.idx/mcp.json` in your workspace root (create it if it doesn't exist):
 }
 ```
 
-For Gemini CLI within Firebase Studio, add to `.gemini/settings.json` instead:
-
-```json
-{
-  "mcpServers": {
-    "rock-mcp": {
-      "command": "node",
-      "args": ["/path/to/rock-mcp/dist/server.js"]
-    }
-  }
-}
-```
+For Gemini CLI within Firebase Studio, add to `.gemini/settings.json` instead.
 
 ---
 
