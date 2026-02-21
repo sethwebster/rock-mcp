@@ -1,0 +1,32 @@
+{
+  "name": "rock-mcp",
+  "version": "0.5.0",
+  "description": "Documentation crawler MCP server - crawl, cache, and surface docs to LLMs",
+  "type": "module",
+  "bin": {
+    "rock-mcp": "./dist/server.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "better-sqlite3": "^9.4.3",
+    "cheerio": "^1.0.0",
+    "turndown": "^7.1.3",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.8",
+    "@types/node": "^20.11.5",
+    "@types/turndown": "^5.0.4",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}
